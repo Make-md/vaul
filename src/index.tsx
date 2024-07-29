@@ -139,7 +139,7 @@ function Root({
     nested,
     hasBeenOpened,
     preventScrollRestoration,
-	noBodyStyles
+    noBodyStyles,
   });
 
   function getScale() {
@@ -638,11 +638,11 @@ function Root({
         overflow: 'hidden',
         ...(isVertical(direction)
           ? {
-              transform: `scale(${getScale()}) translate3d(0, calc(env(safe-area-inset-top) + 14px), 0)`,
+              transform: `scale(${getScale()}) translate3d(0, 14px, 0)`,
               transformOrigin: 'top',
             }
           : {
-              transform: `scale(${getScale()}) translate3d(calc(env(safe-area-inset-top) + 14px), 0, 0)`,
+              transform: `scale(${getScale()}) translate3d(14px, 0, 0)`,
               transformOrigin: 'left',
             }),
         transitionProperty: 'transform, border-radius',
