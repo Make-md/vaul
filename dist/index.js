@@ -101,12 +101,12 @@ function set(el, styles, ignoreCache = false) {
     });
     if (ignoreCache) return;
     cache.set(el, originalStyles);
-    console.log(cache.get(el));
+    console.log('set', el.className, cache.get(el));
 }
 function reset(el, prop) {
     if (!el || !(el instanceof HTMLElement)) return;
     let originalStyles = cache.get(el);
-    console.log('originalStyles', originalStyles);
+    console.log('reset', el.className, originalStyles);
     if (!originalStyles) {
         return;
     }
