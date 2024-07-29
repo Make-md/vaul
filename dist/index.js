@@ -1106,10 +1106,10 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
                 borderRadius: `${BORDER_RADIUS}px`,
                 overflow: 'hidden',
                 ...isVertical(direction) ? {
-                    transform: `scale(${getScale()})`,
+                    transform: `scale(${getScale()}) translate3d(0, 14px, 0)`,
                     transformOrigin: 'top'
                 } : {
-                    transform: `scale(${getScale()})`,
+                    transform: `scale(${getScale()}) translate3d(14px, 0, 0)`,
                     transformOrigin: 'left'
                 },
                 transitionProperty: 'transform, border-radius',
@@ -1223,10 +1223,10 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
                 borderRadius: `${BORDER_RADIUS}px`,
                 overflow: 'hidden',
                 ...isVertical(direction) ? {
-                    transform: `scale(${getScale()})`,
+                    transform: `scale(${getScale()}) translate3d(0, 14px, 0)`,
                     transformOrigin: 'top'
                 } : {
-                    transform: `scale(${getScale()})`,
+                    transform: `scale(${getScale()}) translate3d(14px, 0, 0)`,
                     transformOrigin: 'left'
                 },
                 transitionProperty: 'transform, border-radius',
