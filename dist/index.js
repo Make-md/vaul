@@ -1088,7 +1088,7 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
     React__namespace.default.useEffect(()=>{
         setMounted(true);
         return ()=>{
-            resetDrawer();
+            scaleBackground(false);
         };
     }, []);
     function resetDrawer() {

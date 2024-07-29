@@ -472,7 +472,7 @@ function Root({
   React.useEffect(() => {
     setMounted(true);
     return () => {
-      resetDrawer();
+      scaleBackground(false);
     };
   }, []);
 
