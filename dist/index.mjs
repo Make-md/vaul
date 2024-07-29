@@ -79,7 +79,7 @@ function set(el, styles, ignoreCache = false) {
     });
     if (ignoreCache) return;
     cache.set(el, originalStyles);
-    if (el.hasAttribute("vaul-drawer-wrapper")) console.log('set', el.className, cache.get(el));
+    console.log('set', el.className, cache.get(el));
 }
 function reset(el, prop) {
     if (!el || !(el instanceof HTMLElement)) return;
@@ -89,7 +89,7 @@ function reset(el, prop) {
     }
     if (prop) {
         el.style[prop] = originalStyles[prop];
-        if (el.hasAttribute("vaul-drawer-wrapper")) console.log('reset', el.className, prop, originalStyles[prop]);
+        console.log('reset', el.className, prop, originalStyles[prop]);
     } else {
         Object.entries(originalStyles).forEach(([key, value])=>{
             el.style[key] = value;

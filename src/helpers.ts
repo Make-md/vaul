@@ -38,7 +38,6 @@ export function set(el: Element | HTMLElement | null | undefined, styles: Style,
 
   
   cache.set(el, originalStyles);
-  if (el.hasAttribute("vaul-drawer-wrapper"))
     console.log('set',el.className, cache.get(el));
 }
 
@@ -52,7 +51,6 @@ export function reset(el: Element | HTMLElement | null, prop?: string) {
 
   if (prop) {
     (el.style as any)[prop] = originalStyles[prop];
-    if (el.hasAttribute("vaul-drawer-wrapper"))
       console.log('reset',el.className, prop, originalStyles[prop]);
   } else {
     Object.entries(originalStyles).forEach(([key, value]) => {
