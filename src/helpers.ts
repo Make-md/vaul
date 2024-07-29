@@ -1,10 +1,10 @@
 import { DrawerDirection } from './types';
 
-interface Style {
+export interface Style {
   [key: string]: string;
 }
 
-const cache = new WeakMap();
+
 
 export function isInView(el: HTMLElement): boolean {
   const rect = el.getBoundingClientRect();
@@ -20,7 +20,7 @@ export function isInView(el: HTMLElement): boolean {
   );
 }
 
-export function set(el: Element | HTMLElement | null | undefined, styles: Style, ignoreCache = false) {
+export function set(cache: WeakMap<HTMLElement, Style>, el: Element | HTMLElement | null | undefined, styles: Style, ignoreCache = false) {
   if (!el || !(el instanceof HTMLElement)) return;
   let originalStyles: Style = {};
 
@@ -41,7 +41,7 @@ export function set(el: Element | HTMLElement | null | undefined, styles: Style,
     console.log('set',el.className, cache.get(el));
 }
 
-export function reset(el: Element | HTMLElement | null, prop?: string) {
+export function reset(cache: WeakMap<HTMLElement, Style>, el: Element | HTMLElement | null, prop?: string) {
   if (!el || !(el instanceof HTMLElement)) return;
   let originalStyles = cache.get(el);
 

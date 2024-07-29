@@ -87,8 +87,7 @@ const useDrawerContext = ()=>{
     return context;
 };
 
-const cache = new WeakMap();
-function set(el, styles, ignoreCache = false) {
+function set(cache, el, styles, ignoreCache = false) {
     if (!el || !(el instanceof HTMLElement)) return;
     let originalStyles = {};
     Object.entries(styles).forEach(([key, value])=>{
@@ -103,7 +102,7 @@ function set(el, styles, ignoreCache = false) {
     cache.set(el, originalStyles);
     console.log('set', el.className, cache.get(el));
 }
-function reset(el, prop) {
+function reset(cache, el, prop) {
     if (!el || !(el instanceof HTMLElement)) return;
     let originalStyles = cache.get(el);
     if (!originalStyles) {
@@ -586,7 +585,7 @@ function useControllableState({ prop, defaultProp, onChange = ()=>{} }) {
     ];
 }
 
-function useSnapPoints({ activeSnapPointProp, setActiveSnapPointProp, snapPoints, drawerRef, overlayRef, fadeFromIndex, onSnapPointChange, direction = 'bottom' }) {
+function useSnapPoints({ activeSnapPointProp, setActiveSnapPointProp, snapPoints, drawerRef, overlayRef, cacheRef, fadeFromIndex, onSnapPointChange, direction = 'bottom' }) {
     const [activeSnapPoint, setActiveSnapPoint] = useControllableState({
         prop: activeSnapPointProp,
         defaultProp: snapPoints == null ? void 0 : snapPoints[0],
@@ -634,17 +633,17 @@ function useSnapPoints({ activeSnapPointProp, setActiveSnapPointProp, snapPoints
         var _snapPointsOffset_findIndex;
         const newSnapPointIndex = (_snapPointsOffset_findIndex = snapPointsOffset == null ? void 0 : snapPointsOffset.findIndex((snapPointDim)=>snapPointDim === dimension)) != null ? _snapPointsOffset_findIndex : null;
         onSnapPointChange(newSnapPointIndex);
-        set(drawerRef.current, {
+        set(cacheRef.current, drawerRef.current, {
             transition: `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
             transform: isVertical(direction) ? `translate3d(0, ${dimension}px, 0)` : `translate3d(${dimension}px, 0, 0)`
         });
         if (snapPointsOffset && newSnapPointIndex !== snapPointsOffset.length - 1 && newSnapPointIndex !== fadeFromIndex) {
-            set(overlayRef.current, {
+            set(cacheRef.current, overlayRef.current, {
                 transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
                 opacity: '0'
             });
         } else {
-            set(overlayRef.current, {
+            set(cacheRef.current, overlayRef.current, {
                 transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
                 opacity: '1'
             });
@@ -680,7 +679,7 @@ function useSnapPoints({ activeSnapPointProp, setActiveSnapPointProp, snapPoints
         const isFirst = activeSnapPointIndex === 0;
         const hasDraggedUp = draggedDistance > 0;
         if (isOverlaySnapPoint) {
-            set(overlayRef.current, {
+            set(cacheRef.current, overlayRef.current, {
                 transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`
             });
         }
@@ -725,7 +724,7 @@ function useSnapPoints({ activeSnapPointProp, setActiveSnapPointProp, snapPoints
         if ((direction === 'top' || direction === 'left') && newValue > snapPointsOffset[snapPointsOffset.length - 1]) {
             return;
         }
-        set(drawerRef.current, {
+        set(cacheRef.current, drawerRef.current, {
             transform: isVertical(direction) ? `translate3d(0, ${newValue}px, 0)` : `translate3d(${newValue}px, 0, 0)`
         });
     }
@@ -792,12 +791,14 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
     const drawerRef = React__namespace.default.useRef(null);
     const drawerHeightRef = React__namespace.default.useRef(((_drawerRef_current = drawerRef.current) == null ? void 0 : _drawerRef_current.getBoundingClientRect().height) || 0);
     const initialDrawerHeight = React__namespace.default.useRef(0);
+    const cache = React.useRef(null);
     const onSnapPointChange = React__namespace.default.useCallback((activeSnapPointIndex)=>{
         // Change openTime ref when we reach the last snap point to prevent dragging for 500ms incase it's scrollable.
         if (snapPoints && activeSnapPointIndex === snapPointsOffset.length - 1) openTime.current = new Date();
     }, []);
     const { activeSnapPoint, activeSnapPointIndex, setActiveSnapPoint, onRelease: onReleaseSnapPoints, snapPointsOffset, onDrag: onDragSnapPoints, shouldFade, getPercentageDragged: getSnapPointsPercentageDragged } = useSnapPoints({
         snapPoints,
+        cacheRef: cache,
         activeSnapPointProp,
         setActiveSnapPointProp,
         drawerRef,
@@ -921,10 +922,10 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
             drawerRef.current.classList.add(DRAG_CLASS);
             // If shouldDrag gave true once after pressing down on the drawer, we set isAllowedToDrag to true and it will remain true until we let go, there's no reason to disable dragging mid way, ever, and that's the solution to it
             isAllowedToDrag.current = true;
-            set(drawerRef.current, {
+            set(cache.current, drawerRef.current, {
                 transition: 'none'
             });
-            set(overlayRef.current, {
+            set(cache.current, overlayRef.current, {
                 transition: 'none'
             });
             if (snapPoints) {
@@ -936,7 +937,7 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
             if (isDraggingInDirection && !snapPoints) {
                 const dampenedDraggedDistance = dampenValue(draggedDistance);
                 const translateValue = Math.min(dampenedDraggedDistance * -1, 0) * directionMultiplier;
-                set(drawerRef.current, {
+                set(cache.current, drawerRef.current, {
                     transform: isVertical(direction) ? `translate3d(0, ${translateValue}px, 0)` : `translate3d(${translateValue}px, 0, 0)`
                 });
                 return;
@@ -944,7 +945,7 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
             const opacityValue = 1 - percentageDragged;
             if (shouldFade || fadeFromIndex && activeSnapPointIndex === fadeFromIndex - 1) {
                 onDragProp == null ? void 0 : onDragProp(event, percentageDragged);
-                set(overlayRef.current, {
+                set(cache.current, overlayRef.current, {
                     opacity: `${opacityValue}`,
                     transition: 'none'
                 }, true);
@@ -954,7 +955,7 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
                 const scaleValue = Math.min(getScale() + percentageDragged * (1 - getScale()), 1);
                 const borderRadiusValue = 8 - percentageDragged * 8;
                 const translateValue = Math.max(0, 14 - percentageDragged * 14);
-                set(wrapper, {
+                set(cache.current, wrapper, {
                     borderRadius: `${borderRadiusValue}px`,
                     transform: isVertical(direction) ? `scale(${scaleValue}) translate3d(0, ${translateValue}px, 0)` : `scale(${scaleValue}) translate3d(${translateValue}px, 0, 0)`,
                     transition: 'none'
@@ -962,7 +963,7 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
             }
             if (!snapPoints) {
                 const translateValue = absDraggedDistance * directionMultiplier;
-                set(drawerRef.current, {
+                set(cache.current, drawerRef.current, {
                     transform: isVertical(direction) ? `translate3d(0, ${translateValue}px, 0)` : `translate3d(${translateValue}px, 0, 0)`
                 });
             }
@@ -1036,11 +1037,11 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
         if (!drawerRef.current) return;
         cancelDrag();
         onClose == null ? void 0 : onClose();
-        set(drawerRef.current, {
+        set(cache.current, drawerRef.current, {
             transform: isVertical(direction) ? `translate3d(0, ${direction === 'bottom' ? '100%' : '-100%'}, 0)` : `translate3d(${direction === 'right' ? '100%' : '-100%'}, 0, 0)`,
             transition: `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`
         });
-        set(overlayRef.current, {
+        set(cache.current, overlayRef.current, {
             opacity: '0',
             transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`
         });
@@ -1060,7 +1061,7 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
         if (!isOpen && shouldScaleBackground) {
             // Can't use `onAnimationEnd` as the component will be invisible by then
             const id = setTimeout(()=>{
-                reset(document.body);
+                reset(cache.current, document.body);
             }, 200);
             return ()=>clearTimeout(id);
         }
@@ -1088,23 +1089,24 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
         isOpen
     ]);
     React__namespace.default.useEffect(()=>{
+        cache.current = new WeakMap();
         setMounted(true);
     }, []);
     function resetDrawer() {
         if (!drawerRef.current) return;
         const wrapper = document.querySelector('[vaul-drawer-wrapper]');
         const currentSwipeAmount = getTranslate(drawerRef.current, direction);
-        set(drawerRef.current, {
+        set(cache.current, drawerRef.current, {
             transform: 'translate3d(0, 0, 0)',
             transition: `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`
         });
-        set(overlayRef.current, {
+        set(cache.current, overlayRef.current, {
             transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
             opacity: '1'
         });
         // Don't reset background if swiped upwards
         if (shouldScaleBackground && currentSwipeAmount && currentSwipeAmount > 0 && isOpen) {
-            set(wrapper, {
+            set(cache.current, wrapper, {
                 borderRadius: `${BORDER_RADIUS}px`,
                 overflow: 'hidden',
                 ...isVertical(direction) ? {
@@ -1181,7 +1183,7 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
     React__namespace.default.useEffect(()=>{
         // Trigger enter animation without using CSS animation
         if (isOpen) {
-            set(document.documentElement, {
+            set(cache.current, document.documentElement, {
                 scrollBehavior: 'auto'
             });
             openTime.current = new Date();
@@ -1212,16 +1214,16 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
             if (setBackgroundColorOnScale) {
                 if (!noBodyStyles) {
                     // setting original styles initially
-                    set(document.body, {
+                    set(cache.current, document.body, {
                         background: document.body.style.backgroundColor || document.body.style.background
                     });
                     // setting body styles, with cache ignored, so that we can get correct original styles in reset
-                    set(document.body, {
+                    set(cache.current, document.body, {
                         background: 'black'
                     }, true);
                 }
             }
-            set(wrapper, {
+            set(cache.current, wrapper, {
                 borderRadius: `${BORDER_RADIUS}px`,
                 overflow: 'hidden',
                 ...isVertical(direction) ? {
@@ -1237,10 +1239,10 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
             });
         } else {
             // Exit
-            reset(wrapper, 'overflow');
-            reset(wrapper, 'transform');
-            reset(wrapper, 'borderRadius');
-            set(wrapper, {
+            reset(cache.current, wrapper, 'overflow');
+            reset(cache.current, wrapper, 'transform');
+            reset(cache.current, wrapper, 'borderRadius');
+            set(cache.current, wrapper, {
                 transitionProperty: 'transform, border-radius',
                 transitionDuration: `${TRANSITIONS.DURATION}s`,
                 transitionTimingFunction: `cubic-bezier(${TRANSITIONS.EASE.join(',')})`
@@ -1253,14 +1255,14 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
         if (nestedOpenChangeTimer.current) {
             window.clearTimeout(nestedOpenChangeTimer.current);
         }
-        set(drawerRef.current, {
+        set(cache.current, drawerRef.current, {
             transition: `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
             transform: `scale(${scale}) translate3d(0, ${y}px, 0)`
         });
         if (!o && drawerRef.current) {
             nestedOpenChangeTimer.current = setTimeout(()=>{
                 const translateValue = getTranslate(drawerRef.current, direction);
-                set(drawerRef.current, {
+                set(cache.current, drawerRef.current, {
                     transition: 'none',
                     transform: isVertical(direction) ? `translate3d(0, ${translateValue}px, 0)` : `translate3d(${translateValue}px, 0, 0)`
                 });
@@ -1273,7 +1275,7 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
         const initialScale = (initialDim - NESTED_DISPLACEMENT) / initialDim;
         const newScale = initialScale + percentageDragged * (1 - initialScale);
         const newTranslate = -NESTED_DISPLACEMENT + percentageDragged * NESTED_DISPLACEMENT;
-        set(drawerRef.current, {
+        set(cache.current, drawerRef.current, {
             transform: isVertical(direction) ? `scale(${newScale}) translate3d(0, ${newTranslate}px, 0)` : `scale(${newScale}) translate3d(${newTranslate}px, 0, 0)`,
             transition: 'none'
         });
@@ -1283,7 +1285,7 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
         const scale = o ? (dim - NESTED_DISPLACEMENT) / dim : 1;
         const translate = o ? -NESTED_DISPLACEMENT : 0;
         if (o) {
-            set(drawerRef.current, {
+            set(cache.current, drawerRef.current, {
                 transition: `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
                 transform: isVertical(direction) ? `scale(${scale}) translate3d(0, ${translate}px, 0)` : `scale(${scale}) translate3d(${translate}px, 0, 0)`
             });

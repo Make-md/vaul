@@ -1,8 +1,8 @@
 import React from 'react';
-import { set, isVertical } from './helpers';
 import { TRANSITIONS, VELOCITY_THRESHOLD } from './constants';
-import { useControllableState } from './use-controllable-state';
+import { isVertical, set, Style } from './helpers';
 import { DrawerDirection } from './types';
+import { useControllableState } from './use-controllable-state';
 
 export function useSnapPoints({
   activeSnapPointProp,
@@ -10,6 +10,7 @@ export function useSnapPoints({
   snapPoints,
   drawerRef,
   overlayRef,
+  cacheRef,
   fadeFromIndex,
   onSnapPointChange,
   direction = 'bottom',
@@ -22,6 +23,7 @@ export function useSnapPoints({
   overlayRef: React.RefObject<HTMLDivElement>;
   onSnapPointChange(activeSnapPointIndex: number): void;
   direction?: DrawerDirection;
+  cacheRef: React.MutableRefObject<WeakMap<HTMLElement, Style>>;
 }) {
   const [activeSnapPoint, setActiveSnapPoint] = useControllableState<string | number | null>({
     prop: activeSnapPointProp,
@@ -87,7 +89,7 @@ export function useSnapPoints({
     (dimension: number) => {
       const newSnapPointIndex = snapPointsOffset?.findIndex((snapPointDim) => snapPointDim === dimension) ?? null;
       onSnapPointChange(newSnapPointIndex);
-      set(drawerRef.current, {
+      set(cacheRef.current, drawerRef.current, {
         transition: `transform ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
         transform: isVertical(direction) ? `translate3d(0, ${dimension}px, 0)` : `translate3d(${dimension}px, 0, 0)`,
       });
@@ -97,12 +99,12 @@ export function useSnapPoints({
         newSnapPointIndex !== snapPointsOffset.length - 1 &&
         newSnapPointIndex !== fadeFromIndex
       ) {
-        set(overlayRef.current, {
+        set(cacheRef.current, overlayRef.current, {
           transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
           opacity: '0',
         });
       } else {
-        set(overlayRef.current, {
+        set(cacheRef.current, overlayRef.current, {
           transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
           opacity: '1',
         });
@@ -146,7 +148,7 @@ export function useSnapPoints({
     const hasDraggedUp = draggedDistance > 0;
 
     if (isOverlaySnapPoint) {
-      set(overlayRef.current, {
+      set(cacheRef.current, overlayRef.current, {
         transition: `opacity ${TRANSITIONS.DURATION}s cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
       });
     }
@@ -207,7 +209,7 @@ export function useSnapPoints({
       return;
     }
 
-    set(drawerRef.current, {
+    set(cacheRef.current, drawerRef.current, {
       transform: isVertical(direction) ? `translate3d(0, ${newValue}px, 0)` : `translate3d(${newValue}px, 0, 0)`,
     });
   }
