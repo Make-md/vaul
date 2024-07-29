@@ -471,9 +471,6 @@ function Root({
 
   React.useEffect(() => {
     setMounted(true);
-    return () => {
-      scaleBackground(false);
-    };
   }, []);
 
   function resetDrawer() {

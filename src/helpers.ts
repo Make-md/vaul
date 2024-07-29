@@ -37,12 +37,13 @@ export function set(el: Element | HTMLElement | null | undefined, styles: Style,
   if (ignoreCache) return;
 
   cache.set(el, originalStyles);
+  console.log(cache.get(el));
 }
 
 export function reset(el: Element | HTMLElement | null, prop?: string) {
   if (!el || !(el instanceof HTMLElement)) return;
   let originalStyles = cache.get(el);
-
+console.log('originalStyles', originalStyles)
   if (!originalStyles) {
     return;
   }

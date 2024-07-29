@@ -101,10 +101,12 @@ function set(el, styles, ignoreCache = false) {
     });
     if (ignoreCache) return;
     cache.set(el, originalStyles);
+    console.log(cache.get(el));
 }
 function reset(el, prop) {
     if (!el || !(el instanceof HTMLElement)) return;
     let originalStyles = cache.get(el);
+    console.log('originalStyles', originalStyles);
     if (!originalStyles) {
         return;
     }
@@ -1087,9 +1089,6 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
     ]);
     React__namespace.default.useEffect(()=>{
         setMounted(true);
-        return ()=>{
-            scaleBackground(false);
-        };
     }, []);
     function resetDrawer() {
         if (!drawerRef.current) return;
