@@ -1237,16 +1237,14 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
         if (!wrapper || !shouldScaleBackground) return;
         if (open) {
             if (setBackgroundColorOnScale) {
-                if (!noBodyStyles) {
-                    // setting original styles initially
-                    set(cache.current, document.body, {
-                        background: document.body.style.backgroundColor || document.body.style.background
-                    });
-                    // setting body styles, with cache ignored, so that we can get correct original styles in reset
-                    set(cache.current, document.body, {
-                        background: 'black'
-                    }, true);
-                }
+                // setting original styles initially
+                set(cache.current, document.body, {
+                    background: document.body.style.backgroundColor || document.body.style.background
+                });
+                // setting body styles, with cache ignored, so that we can get correct original styles in reset
+                set(cache.current, document.body, {
+                    background: 'black'
+                }, true);
             }
             const nestedDrawers = document.querySelectorAll('[vaul-drawer]');
             nestedDrawers.forEach((nestedDrawer)=>{
