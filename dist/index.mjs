@@ -1065,6 +1065,9 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
     ]);
     React__default.useEffect(()=>{
         setMounted(true);
+        return ()=>{
+            resetDrawer();
+        };
     }, []);
     function resetDrawer() {
         if (!drawerRef.current) return;
