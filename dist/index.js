@@ -100,8 +100,8 @@ function set(el, styles, ignoreCache = false) {
         el.style[key] = value;
     });
     if (ignoreCache) return;
-    if (el.getAttribute("vaul-drawer-wrapper")) cache.set(el, originalStyles);
-    console.log('set', el.className, cache.get(el));
+    cache.set(el, originalStyles);
+    if (el.getAttribute("vaul-drawer-wrapper")) console.log('set', el.className, cache.get(el));
 }
 function reset(el, prop) {
     if (!el || !(el instanceof HTMLElement)) return;

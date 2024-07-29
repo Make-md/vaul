@@ -36,8 +36,9 @@ export function set(el: Element | HTMLElement | null | undefined, styles: Style,
 
   if (ignoreCache) return;
 
-  if (el.getAttribute("vaul-drawer-wrapper"))
+  
   cache.set(el, originalStyles);
+  if (el.getAttribute("vaul-drawer-wrapper"))
   console.log('set',el.className, cache.get(el));
 }
 
