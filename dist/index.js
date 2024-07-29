@@ -100,7 +100,6 @@ function set(cache, el, styles, ignoreCache = false) {
     });
     if (ignoreCache) return;
     cache.set(el, originalStyles);
-    console.log('set', el.className, cache.get(el));
 }
 function reset(cache, el, prop) {
     if (!el || !(el instanceof HTMLElement)) return;
@@ -110,7 +109,6 @@ function reset(cache, el, prop) {
     }
     if (prop) {
         el.style[prop] = originalStyles[prop];
-        console.log('reset', el.className, prop, originalStyles[prop]);
     } else {
         Object.entries(originalStyles).forEach(([key, value])=>{
             el.style[key] = value;
@@ -955,6 +953,15 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
                 const scaleValue = Math.min(getScale() + percentageDragged * (1 - getScale()), 1);
                 const borderRadiusValue = 8 - percentageDragged * 8;
                 const translateValue = Math.max(0, 14 - percentageDragged * 14);
+                const nestedDrawers = document.querySelectorAll('[vaul-drawer]');
+                nestedDrawers.forEach((nestedDrawer)=>{
+                    if (nestedDrawer === drawerRef.current) return;
+                    set(cache.current, nestedDrawer, {
+                        borderRadius: `${borderRadiusValue}px`,
+                        transform: isVertical(direction) ? `scale(${scaleValue}) translate3d(0, ${translateValue}px, 0)` : `scale(${scaleValue}) translate3d(${translateValue}px, 0, 0)`,
+                        transition: 'none'
+                    }, true);
+                });
                 set(cache.current, wrapper, {
                     borderRadius: `${borderRadiusValue}px`,
                     transform: isVertical(direction) ? `scale(${scaleValue}) translate3d(0, ${translateValue}px, 0)` : `scale(${scaleValue}) translate3d(${translateValue}px, 0, 0)`,
@@ -1106,6 +1113,24 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
         });
         // Don't reset background if swiped upwards
         if (shouldScaleBackground && currentSwipeAmount && currentSwipeAmount > 0 && isOpen) {
+            const nestedDrawers = document.querySelectorAll('[vaul-drawer]');
+            nestedDrawers.forEach((nestedDrawer)=>{
+                if (nestedDrawer === drawerRef.current) return;
+                set(cache.current, nestedDrawer, {
+                    borderRadius: `${BORDER_RADIUS}px`,
+                    overflow: 'hidden',
+                    ...isVertical(direction) ? {
+                        transform: `scale(${getScale()}) translate3d(0, 14px, 0)`,
+                        transformOrigin: 'top'
+                    } : {
+                        transform: `scale(${getScale()}) translate3d(14px, 0, 0)`,
+                        transformOrigin: 'left'
+                    },
+                    transitionProperty: 'transform, border-radius',
+                    transitionDuration: `${TRANSITIONS.DURATION}s`,
+                    transitionTimingFunction: `cubic-bezier(${TRANSITIONS.EASE.join(',')})`
+                }, true);
+            });
             set(cache.current, wrapper, {
                 borderRadius: `${BORDER_RADIUS}px`,
                 overflow: 'hidden',
@@ -1223,6 +1248,24 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
                     }, true);
                 }
             }
+            const nestedDrawers = document.querySelectorAll('[vaul-drawer]');
+            nestedDrawers.forEach((nestedDrawer)=>{
+                if (nestedDrawer === drawerRef.current) return;
+                set(cache.current, nestedDrawer, {
+                    borderRadius: `${BORDER_RADIUS}px`,
+                    overflow: 'hidden',
+                    ...isVertical(direction) ? {
+                        transform: `scale(${getScale()}) translate3d(0, 14px, 0)`,
+                        transformOrigin: 'top'
+                    } : {
+                        transform: `scale(${getScale()}) translate3d(14px, 0, 0)`,
+                        transformOrigin: 'left'
+                    },
+                    transitionProperty: 'transform, border-radius',
+                    transitionDuration: `${TRANSITIONS.DURATION}s`,
+                    transitionTimingFunction: `cubic-bezier(${TRANSITIONS.EASE.join(',')})`
+                });
+            });
             set(cache.current, wrapper, {
                 borderRadius: `${BORDER_RADIUS}px`,
                 overflow: 'hidden',
@@ -1238,6 +1281,18 @@ function Root({ open: openProp, onOpenChange, children, shouldScaleBackground, o
                 transitionTimingFunction: `cubic-bezier(${TRANSITIONS.EASE.join(',')})`
             });
         } else {
+            const nestedDrawers = document.querySelectorAll('[vaul-drawer]');
+            nestedDrawers.forEach((nestedDrawer)=>{
+                if (nestedDrawer === drawerRef.current) return;
+                reset(cache.current, nestedDrawer, 'overflow');
+                reset(cache.current, nestedDrawer, 'transform');
+                reset(cache.current, nestedDrawer, 'borderRadius');
+                set(cache.current, nestedDrawer, {
+                    transitionProperty: 'transform, border-radius',
+                    transitionDuration: `${TRANSITIONS.DURATION}s`,
+                    transitionTimingFunction: `cubic-bezier(${TRANSITIONS.EASE.join(',')})`
+                });
+            });
             // Exit
             reset(cache.current, wrapper, 'overflow');
             reset(cache.current, wrapper, 'transform');

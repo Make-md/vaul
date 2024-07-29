@@ -320,7 +320,22 @@ function Root({
         const borderRadiusValue = 8 - percentageDragged * 8;
 
         const translateValue = Math.max(0, 14 - percentageDragged * 14);
-
+        const nestedDrawers = document.querySelectorAll('[vaul-drawer]');
+        nestedDrawers.forEach((nestedDrawer) => {
+          if (nestedDrawer === drawerRef.current) return;
+          set(
+            cache.current,
+            nestedDrawer,
+            {
+              borderRadius: `${borderRadiusValue}px`,
+              transform: isVertical(direction)
+                ? `scale(${scaleValue}) translate3d(0, ${translateValue}px, 0)`
+                : `scale(${scaleValue}) translate3d(${translateValue}px, 0, 0)`,
+              transition: 'none',
+            },
+            true,
+          );
+        });
         set(
           cache.current,
           wrapper,
@@ -494,6 +509,32 @@ function Root({
 
     // Don't reset background if swiped upwards
     if (shouldScaleBackground && currentSwipeAmount && currentSwipeAmount > 0 && isOpen) {
+      const nestedDrawers = document.querySelectorAll('[vaul-drawer]');
+      nestedDrawers.forEach((nestedDrawer) => {
+        if (nestedDrawer === drawerRef.current) return;
+        set(
+          cache.current,
+          nestedDrawer,
+          {
+            borderRadius: `${BORDER_RADIUS}px`,
+            overflow: 'hidden',
+            ...(isVertical(direction)
+              ? {
+                  transform: `scale(${getScale()}) translate3d(0, 14px, 0)`,
+                  transformOrigin: 'top',
+                }
+              : {
+                  transform: `scale(${getScale()}) translate3d(14px, 0, 0)`,
+                  transformOrigin: 'left',
+                }),
+            transitionProperty: 'transform, border-radius',
+            transitionDuration: `${TRANSITIONS.DURATION}s`,
+            transitionTimingFunction: `cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
+          },
+          true,
+        );
+      });
+
       set(
         cache.current,
         wrapper,
@@ -638,6 +679,26 @@ function Root({
           );
         }
       }
+      const nestedDrawers = document.querySelectorAll('[vaul-drawer]');
+      nestedDrawers.forEach((nestedDrawer) => {
+        if (nestedDrawer === drawerRef.current) return;
+        set(cache.current, nestedDrawer, {
+          borderRadius: `${BORDER_RADIUS}px`,
+          overflow: 'hidden',
+          ...(isVertical(direction)
+            ? {
+                transform: `scale(${getScale()}) translate3d(0, 14px, 0)`,
+                transformOrigin: 'top',
+              }
+            : {
+                transform: `scale(${getScale()}) translate3d(14px, 0, 0)`,
+                transformOrigin: 'left',
+              }),
+          transitionProperty: 'transform, border-radius',
+          transitionDuration: `${TRANSITIONS.DURATION}s`,
+          transitionTimingFunction: `cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
+        });
+      });
 
       set(cache.current, wrapper, {
         borderRadius: `${BORDER_RADIUS}px`,
@@ -656,6 +717,18 @@ function Root({
         transitionTimingFunction: `cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
       });
     } else {
+      const nestedDrawers = document.querySelectorAll('[vaul-drawer]');
+      nestedDrawers.forEach((nestedDrawer) => {
+        if (nestedDrawer === drawerRef.current) return;
+        reset(cache.current, nestedDrawer, 'overflow');
+        reset(cache.current, nestedDrawer, 'transform');
+        reset(cache.current, nestedDrawer, 'borderRadius');
+        set(cache.current, nestedDrawer, {
+          transitionProperty: 'transform, border-radius',
+          transitionDuration: `${TRANSITIONS.DURATION}s`,
+          transitionTimingFunction: `cubic-bezier(${TRANSITIONS.EASE.join(',')})`,
+        });
+      });
       // Exit
       reset(cache.current, wrapper, 'overflow');
       reset(cache.current, wrapper, 'transform');

@@ -38,7 +38,6 @@ export function set(cache: WeakMap<HTMLElement, Style>, el: Element | HTMLElemen
 
   
   cache.set(el, originalStyles);
-    console.log('set',el.className, cache.get(el));
 }
 
 export function reset(cache: WeakMap<HTMLElement, Style>, el: Element | HTMLElement | null, prop?: string) {
@@ -51,7 +50,6 @@ export function reset(cache: WeakMap<HTMLElement, Style>, el: Element | HTMLElem
 
   if (prop) {
     (el.style as any)[prop] = originalStyles[prop];
-      console.log('reset',el.className, prop, originalStyles[prop]);
   } else {
     Object.entries(originalStyles).forEach(([key, value]) => {
       (el.style as any)[key] = value;
