@@ -1,16 +1,16 @@
 'use client';
 
 import * as DialogPrimitive from '@radix-ui/react-dialog';
-import React, { useRef, useState } from 'react';
+import React from 'react';
+import { TRANSITIONS, VELOCITY_THRESHOLD } from './constants';
 import { DrawerContext, useDrawerContext } from './context';
+import { dampenValue, getTranslate, isVertical, reset, set } from './helpers';
 import './style.css';
-import { usePreventScroll, isInput, isIOS } from './use-prevent-scroll';
+import { DrawerDirection } from './types';
 import { useComposedRefs } from './use-composed-refs';
 import { usePositionFixed } from './use-position-fixed';
+import { isInput, isIOS, usePreventScroll } from './use-prevent-scroll';
 import { useSnapPoints } from './use-snap-points';
-import { set, reset, getTranslate, dampenValue, isVertical } from './helpers';
-import { TRANSITIONS, VELOCITY_THRESHOLD } from './constants';
-import { DrawerDirection } from './types';
 
 const CLOSE_THRESHOLD = 0.25;
 
@@ -497,11 +497,11 @@ function Root({
           overflow: 'hidden',
           ...(isVertical(direction)
             ? {
-                transform: `scale(${getScale()}) translate3d(0, calc(env(safe-area-inset-top) + 14px), 0)`,
+                transform: `scale(${getScale()}) translate3d(0,  14px, 0)`,
                 transformOrigin: 'top',
               }
             : {
-                transform: `scale(${getScale()}) translate3d(calc(env(safe-area-inset-top) + 14px), 0, 0)`,
+                transform: `scale(${getScale()}) translate3d(14px, 0, 0)`,
                 transformOrigin: 'left',
               }),
           transitionProperty: 'transform, border-radius',
