@@ -497,11 +497,11 @@ function Root({
           overflow: 'hidden',
           ...(isVertical(direction)
             ? {
-                transform: `scale(${getScale()}) translate3d(0,  14px, 0)`,
+                transform: `scale(${getScale()})`,
                 transformOrigin: 'top',
               }
             : {
-                transform: `scale(${getScale()}) translate3d(14px, 0, 0)`,
+                transform: `scale(${getScale()})`,
                 transformOrigin: 'left',
               }),
           transitionProperty: 'transform, border-radius',
@@ -638,11 +638,11 @@ function Root({
         overflow: 'hidden',
         ...(isVertical(direction)
           ? {
-              transform: `scale(${getScale()}) translate3d(0, 14px, 0)`,
+              transform: `scale(${getScale()})`,
               transformOrigin: 'top',
             }
           : {
-              transform: `scale(${getScale()}) translate3d(14px, 0, 0)`,
+              transform: `scale(${getScale()})`,
               transformOrigin: 'left',
             }),
         transitionProperty: 'transform, border-radius',
